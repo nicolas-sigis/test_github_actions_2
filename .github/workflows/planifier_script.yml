@@ -1,0 +1,84 @@
+# .github/workflows/planifier_script.yml
+name: Exécuter le script quotidiennement
+
+on:
+  schedule:
+    # Exécuter tous les jours à 01h00 UTC
+    # La syntaxe cron est 'minute hour day_of_month month day_of_week'
+    # Pour plus d'infos sur la syntaxe cron : https://crontab.guru/
+    - cron: '* * * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
+
+  # Vous pouvez également déclencher manuellement le workflow pour des tests
+  workflow_dispatch:
+
+jobs:
+  run_python_script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vérifier le dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Ou spécifiez une version exacte comme '3.9'
+
+      # Installez toutes les bibliothèques nécessaires à votre script
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Exécuter le script Python
+        run: python mon_script.py
+
+      # --- Partie pour sauvegarder les données dans le cloud ---
+      # C'est la partie la plus délicate car GitHub Actions n'a pas de stockage persistant.
+      # Vous devrez pousser les données vers un service cloud.
+      # Voici des exemples avec AWS S3 et Google Drive.
+
+      # Exemple 1 : Sauvegarder sur AWS S3 (nécessite un compte AWS et un bucket S3)
+      # - name: Configurer les identifiants AWS
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: eu-west-3 # Remplacez par votre région
+
+      # - name: Installer AWS CLI
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install awscli -y
+
+      # - name: Télécharger les données vers S3
+      #   # Assurez-vous que le nom du fichier généré par votre script est prévisible ou que vous le capturez.
+      #   # Ici, je suppose que mon_script.py génère un fichier dont le nom commence par "data_"
+      #   # et est le plus récent fichier .json
+      #   run: |
+      #     LATEST_FILE=$(ls -t data_*.json | head -1)
+      #     if [ -f "$LATEST_FILE" ]; then
+      #       aws s3 cp "$LATEST_FILE" s3://votre-bucket-s3/donnees-api/
+      #       echo "Fichier $LATEST_FILE téléchargé sur S3."
+      #     else
+      #       echo "Aucun fichier data_*.json trouvé à télécharger sur S3."
+      #     fi
+
+      # Exemple 2 : Sauvegarder sur Google Drive (plus complexe pour un PoC avec GHA)
+      # Il n'y a pas d'action directe et simple pour Google Drive car cela implique une authentification OAuth.
+      # Pour un PoC, vous devriez :
+      # 1. Utiliser une bibliothèque Python comme `pydrive2` dans votre script.
+      # 2. Authentifier votre script avec un compte de service Google (plus sécurisé pour les serveurs).
+      # 3. Stocker les identifiants du compte de service dans les secrets GitHub.
+      # 4. Votre script lui-même s'occuperait de l'upload.
+
+      # Exemple 3 : Sauvegarder dans une base de données cloud (MongoDB Atlas Free Tier, etc.)
+      # C'est souvent la solution la plus propre pour des données structurées.
+      # Votre script Python se connecterait directement à la base de données cloud et y insérerait les données.
+      # Les chaînes de connexion et les identifiants seraient stockés dans les secrets GitHub.
+      # - name: Exécuter le script Python (avec insertion DB)
+      #   run: python mon_script_avec_db.py
+      #   env:
+      #     DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+      #     DB_USER: ${{ secrets.DB_USER }}
+      #     DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
