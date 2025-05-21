@@ -3,13 +3,13 @@ name: Exécuter le script quotidiennement
 
 on:
   schedule:
+    branches:
+      - main
     # Exécuter tous les jours à 01h00 UTC
     # La syntaxe cron est 'minute hour day_of_month month day_of_week'
     # Pour plus d'infos sur la syntaxe cron : https://crontab.guru/
-    - cron: '40 16 * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
+    - cron: '43 16 * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
 
-  # Vous pouvez également déclencher manuellement le workflow pour des tests
-  workflow_dispatch:
 
 jobs:
   run_python_script:
