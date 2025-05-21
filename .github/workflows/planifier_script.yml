@@ -3,7 +3,7 @@ name: Exécuter le script quotidiennement
 
 on:
   schedule:
-    - cron: '0 15 * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
+    - cron: '*/5 * * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
 
 
 jobs:
