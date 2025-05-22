@@ -1,10 +1,10 @@
 # .github/workflows/planifier_script.yml
 name: Exécuter le script quotidiennement
 
-on:
-  schedule:
-    - cron: '*/5 * * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
-
+# on:
+  # schedule:
+  #   - cron: '*/5 * * * *' # C'est 3h00 du matin à Paris en heure d'été (UTC+2)
+on: workflow_dispatch
 
 jobs:
   run_python_script:
